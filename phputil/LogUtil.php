@@ -17,12 +17,12 @@
  * 2013-11-11
  */
 
-//date_default_timezone_set('Asia/ShangHai');
+date_default_timezone_set('Asia/ShangHai');
 
 class LogUtil {
 
     public static $_obj_instance;
-    private $_log_dir; // 日志路径，该目录必须要有写入权限，默认是站点根目录下的log
+    private $_log_dir; // 日志路径，该目录必须要有写入权限，默认是当前目录下的log目录
     private $_log_max_size; // 单个日志文件的最大值，默认是1G
     private $_log_max_num; // 每天最多产生的日志文件数量，默认是1（这也是开发环境的推荐值）
 
@@ -30,6 +30,7 @@ class LogUtil {
         $this->_log_dir = dirname(__FILE__) . '/log/';
         $this->_log_max_size = 1 << 30;
         $this->_log_max_num = 1;
+        echo $this->_log_dir;
     }
 
     public static function get_instance() {
@@ -187,7 +188,7 @@ function get_user_ip() {
 /**
  * 使用示例
  */
-//LogUtil::get_instance()->info('info msg');
+LogUtil::get_instance()->info('info msg');
 //LogUtil::get_instance()->debug('debug msg');
 //LogUtil::get_instance()->warn('warn msg');
 //LogUtil::get_instance()->fatal('fatal msg');
