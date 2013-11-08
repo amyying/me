@@ -17,7 +17,7 @@
  * 2013-11-11
  */
 
-date_default_timezone_set('Asia/ShangHai');
+//date_default_timezone_set('Asia/ShangHai');
 
 class LogUtil {
 
@@ -188,7 +188,7 @@ function get_user_ip() {
 /**
  * 使用示例
  */
-LogUtil::get_instance()->info('info msg');
+//LogUtil::get_instance()->info('info msg');
 //LogUtil::get_instance()->debug('debug msg');
 //LogUtil::get_instance()->warn('warn msg');
 //LogUtil::get_instance()->fatal('fatal msg');
