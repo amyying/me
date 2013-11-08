@@ -11,7 +11,7 @@
  * 1
  *
  * wei.chungwei@gmail.com
- * 2013-11-04
+ * 2013-11-12
  */
 
 class ValidationUtil {
@@ -24,6 +24,7 @@ class ValidationUtil {
     const STATUS_ERROR_USERNAME_LONG = -1004; // 用户名过长
     const STATUS_ERROR_USERNAME_SHORT = -1005; // 用户名过短
     const STATUS_ERROR_ILLEGAL_DATE = -1006; // 无效的身份证日期
+    const STATUS_ERROR_ILLEGAL_IP = -1007; // 不合法ip
 
     const USERNAME_MAX_LENGTH = 32; // 用户名最大长度
     const USERNAME_MIN_LENGTH = 6; // 用户名最小长度
@@ -225,9 +226,35 @@ class ValidationUtil {
 
         return self::STATUS_SUCCESS;
     }
+
+    /**
+     * validate an ip addr
+     * 2013-11-12
+     * @param $ip
+     * @return int
+     */
+    public function validate_ip($ip) {
+        $ip = trim(strval($ip));
+
+        if (empty($ip)) {
+            return self::STATUS_ERROR_EMPTY_ARGS;
+        }
+
+        $pattern = "/^((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)(\.((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)){3}$/";
+        if (!preg_match($pattern, $ip)) {
+            return self::STATUS_ERROR_ILLEGAL_FORMAT;
+        }
+
+        $ip = bindec(decbin(ip2long($ip)));
+        if (floatval($ip) <= 0) {
+            return self::STATUS_ERROR_ILLEGAL_IP;
+        }
+
+        return self::STATUS_SUCCESS;
+    }
 }
 
 // 使用示例
 //echo ValidationUtil::get_instance()->validate_postcode('533304');
 //echo '<br/>';
-//echo ValidationUtil::get_instance()->validate_postcode('53330a');
+//echo ValidationUtil::get_instance()->validate_ip('255.255.255.255');
