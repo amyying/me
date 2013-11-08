@@ -14,6 +14,8 @@
  * 2013-11-12
  */
 
+//date_default_timezone_set('Asia/ShangHai');
+
 class ValidationUtil {
     private static $_obj_instance;
 
