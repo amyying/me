@@ -1,9 +1,7 @@
 基本信息
 ---
-男 | 28岁 | 2012年本科毕业 | 现居深圳
-
-邮箱：wei.chungwei@gmail.com
-
+男 | 28岁 | 2012年本科毕业 | 现居深圳  
+邮箱：wei.chungwei@gmail.com  
 博客：https://github.com/chungwei/me/issues
 
 自我介绍
@@ -22,8 +20,7 @@
 <li>北京盈禾优仕科技有限责任公司        技术部（研发工程师）      2011/11-2013/06</li>
 1.考司法网（http://www.kaosifa.com）
 >本人是技术负责人，负责项目排期，协调技术人员和产品人员的工作，保证项目的进度和质量；参与数据库设计和SEO，并承担服务器端的研发任务，为产品PC版和IPad版提供接口；承担运维工作，负责产品上线部署以及上线后的产品升级和维护。
-
->附：app下载地址 http://app.91.com/Soft/Detail.aspx?Platform=iPhone&f_id=1698895
+  附：app下载地址 http://app.91.com/Soft/Detail.aspx?Platform=iPhone&f_id=1698895
 
 2.考GMAT网 2.0（http://www.kaogmat.com）
 >本人是服务器端的主要开发成员，主要负责题库的建设及其相关基础数据的处理，产品CMS系统开发，以及SSO的实现。
@@ -35,10 +32,10 @@
 
 专业技能
 ---
-熟悉 PHP5 ，掌握 Zend Framework、CodeIgniter、Smarty 等
-熟悉 MySQL，具备数据库优化经验，具备 Memcached 和 Redis 开发经验
-熟悉 Linux，掌握常用基本命令，能熟练搭建 LA(N)MP，了解 Shell 
-掌握 jQuery、jQuery UI 和 Twitter Bootstrap 等前端框架;熟练使用 SVN，了解 Git
+熟悉 PHP5 ，掌握 Zend Framework、CodeIgniter、Smarty 等  
+熟悉 MySQL，具备数据库优化经验，具备 Memcached 和 Redis 开发经验  
+熟悉 Linux，掌握常用基本命令，能熟练搭建 LA(N)MP，了解 Shell  
+掌握 jQuery、jQuery UI 和 Twitter Bootstrap 等前端框架;熟练使用 SVN，了解 Git  
 
 教育经历
 ---
