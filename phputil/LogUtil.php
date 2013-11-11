@@ -187,7 +187,7 @@ function get_user_ip() {
 /**
  * 使用示例
  */
-LogUtil::get_instance()->info('info msg');
-LogUtil::get_instance()->debug('debug msg');
-LogUtil::get_instance()->warn('warn msg');
-LogUtil::get_instance()->fatal('fatal msg');
+//LogUtil::get_instance()->info('info msg');
+//LogUtil::get_instance()->debug('debug msg');
+//LogUtil::get_instance()->warn('warn msg');
+//LogUtil::get_instance()->fatal('fatal msg');
