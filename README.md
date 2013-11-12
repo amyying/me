@@ -32,9 +32,9 @@
 
 专业技能
 ---
-熟悉 PHP5 ，掌握 Zend Framework、CodeIgniter、Smarty 等  
+熟悉 PHP5 ，具备 Zend Framework、CodeIgniter、Smarty 开发经验  
 熟悉 MySQL，具备数据库优化经验，具备 Memcached 和 Redis 开发经验  
-熟悉 Linux，掌握常用基本命令，能熟练搭建 LA(N)MP，了解 Shell  
+熟悉 Linux，能熟练搭建 LA(N)MP及部署Web站点，了解 Shell  
 掌握 jQuery、jQuery UI 和 Twitter Bootstrap 等前端框架;熟练使用 SVN，了解 Git  
 
 教育经历
