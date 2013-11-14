@@ -97,7 +97,7 @@ class RegionInfoUtil {
         }
 
         $location = urlencode($location);
-        $allow_key = '6eac22ca4fe669f142ba7626db67f8f4';
+        $allow_key = '6eac22ca4fe669f142ba7626db67f8f4'; // 这个要自己申请哦，参看文档
         $url = "http://api.map.baidu.com/telematics/v3/weather?location={$location}&output=json&ak={$allow_key}";
         //echo $url;
         try {
