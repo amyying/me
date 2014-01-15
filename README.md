@@ -18,11 +18,11 @@
 
 工作经历/项目经验
 ===
-**•&nbsp;深圳市德科信息技术有限公司　　　　　　研发部（PHP工程师）　　　　　　2013/08-至今**  
-负责OPPO官网&nbsp;[www.myoppo.com](http://www.myoppo.com)和OPPO论坛&nbsp;[bbs.myoppo.com](http://bbs.myoppo.com)的升级和维护。
+**•&nbsp;易宝（北京）信息技术有限公司　　　　　信息系统部（研发工程师）　　　　2013/08-至今**  
+负责海外电商平台&nbsp;[www.dxlisting.com](http://www.dxlisting.com) 研发和维护。
 
 **•&nbsp;百度在线网络技术（北京）有限公司　　　移动云事业部（研发工程师）　　　2013/06-2013/08**  
-移动搜索相关的PHP研发。目前负责移动运营支撑系统-打包平台的研发和维护。
+移动搜索相关的PHP研发。负责移动运营支撑系统-打包平台的研发和维护。
 
 **•&nbsp;北京盈禾优仕科技有限责任公司　　　　　技术部（研发工程师）　　　　　　2011/11-2013/06**  
 1.考司法网&nbsp;[www.kaosifa.com](http://www.kaosifa.com)
@@ -38,9 +38,9 @@
 
 专业技能
 ===
-熟悉 PHP5 ，具备 Zend Framework、CodeIgniter、Smarty 开发经验  
+熟悉 PHP5 ，具备 Zend Framework、CodeIgniter、Kohana、Smarty 开发经验  
 熟悉 MySQL，具备数据库优化经验，具备 Memcached 和 Redis 开发经验  
-熟悉 Linux，能熟练搭建 LA(N)MP及部署Web站点，了解 Shell  
+熟悉 Linux，能熟练搭建 LA(N)MP 及部署 Web 站点，了解 Shell 和 Python  
 掌握 jQuery 和 Twitter Bootstrap 等前端框架；熟练使用 SVN，了解 Git  
 
 教育经历
