@@ -1,5 +1,5 @@
 <?php
-123456
+
 /**
  * 日志通用类
  * 日志分为四个级别：fatal,warn,debug,info
