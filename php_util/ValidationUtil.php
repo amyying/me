@@ -6,7 +6,7 @@
  *
  * 使用示例：
  * require 'ValidationUtil.php';
- * ValidationUtil::get_instance()->validate_email('wei.chungwei@gmail.com');
+ * ValidationUtil::instance()->validate_email('wei.chungwei@gmail.com');
  * output:
  * 1
  *
@@ -35,7 +35,7 @@ class ValidationUtil {
 
     private function __construct() {}
 
-    public static function get_instance() {
+    public static function instance() {
         if (!isset(self::$_obj_instance)) {
             $c = __CLASS__;
             self::$_obj_instance = new $c;
@@ -257,6 +257,6 @@ class ValidationUtil {
 }
 
 // 使用示例
-//echo ValidationUtil::get_instance()->validate_postcode('533304');
+//echo ValidationUtil::instance()->validate_postcode('533304');
 //echo '<br/>';
-//echo ValidationUtil::get_instance()->validate_ip('255.255.255.255');
+//echo ValidationUtil::instance()->validate_ip('255.255.255.255');

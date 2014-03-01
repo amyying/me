@@ -18,9 +18,13 @@ class RegionInfoUtil {
     const STATUS_SUCCESS = 1; // 验证成功
     const STATUS_ERROR_EMPTY_ARGS = -1001; // 传入的参数为空
     const STATUS_ERROR_ILLEGAL_FORMAT = -1002; // 格式错误
-    const STATUS_ERROR_REQUEST = -1008; // 根据ip获取城市信息失败
 
-    const STATUS_ERROR_UNKNOWN = -9999; // 系统未知错误
+    const STATUS_ERROR_REQUEST = -10001; // 根据ip获取城市信息失败
+    const STATUS_ERROR_UNKNOWN = -99999; // 系统未知错误
+
+    const SERVICE_IP_URL = "http://ip.taobao.com/service/getIpInfo.php";
+    const SERVICE_WEATHER_URL = "http://api.map.baidu.com/telematics/v3/weather";
+    const SERVICE_WEATHER_KEY = "6eac22ca4fe669f142ba7626db67f8f4";
 
     /**
      * 获取用户ip
@@ -65,7 +69,7 @@ class RegionInfoUtil {
             return array('code' => self::STATUS_ERROR_EMPTY_ARGS, 'data' => 'empty ip is not allowed.');
         }
 
-        $url = "http://ip.taobao.com/service/getIpInfo.php?ip={$ip}";
+        $url = self::SERVICE_IP_URL . "?ip={$ip}";
         try {
             $tmp = file_get_contents($url);
             if ($tmp) {
@@ -97,8 +101,8 @@ class RegionInfoUtil {
         }
 
         $location = urlencode($location);
-        $allow_key = '6eac22ca4fe669f142ba7626db67f8f4'; // 这个要自己申请哦，参看文档
-        $url = "http://api.map.baidu.com/telematics/v3/weather?location={$location}&output=json&ak={$allow_key}";
+        $allow_key = self::SERVICE_WEATHER_KEY; // 这个要自己申请哦，参看文档
+        $url = self::SERVICE_WEATHER_URL . "?location={$location}&output=json&ak={$allow_key}";
         //echo $url;
         try {
             $tmp = file_get_contents($url);

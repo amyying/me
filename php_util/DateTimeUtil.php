@@ -7,45 +7,24 @@
  * 2013-11-14
  */
 
-date_default_timezone_set("Asia/ShangHai");
-
 class DateTimeUtil {
-    private static $_obj_instance;
 
-    private function __construct() {}
-
-    public static function get_instance() {
-        if (!isset(self::$_obj_instance)) {
-            $c = __CLASS__;
-            self::$_obj_instance = new $c;
-        }
-        return self::$_obj_instance;
-    }
-
-    public function __clone() {
-        trigger_error("singleton clone is not allowed.", E_USER_ERROR);
-    }
-
-    public function free() {
-        self::$_obj_instance = null;
-    }
-
-    public function get_chinese_standard_datetime($timestamp) {
+    public static function get_chinese_standard_datetime($timestamp = null) {
         $format = "Y年m月d日 H点i分s秒";
-        return date($format, $timestamp);
+        return date($format, $timestamp ? $timestamp : time());
     }
 
-    public function get_chinese_standard_time($timestamp) {
+    public static function get_chinese_standard_time($timestamp = null) {
         $format = "H点i分s秒";
-        return date($format, $timestamp);
+        return date($format, $timestamp ? $timestamp : time());
     }
 
-    public function get_chinese_standard_date($timestamp) {
+    public static function get_chinese_standard_date($timestamp = null) {
         $format = "Y年m月d日";
-        return date($format, $timestamp);
+        return date($format, $timestamp ? $timestamp : time());
     }
 
-    public function get_chinese_friendly_datetime($timestamp) {
+    public static function get_chinese_friendly_datetime($timestamp) {
         $now = time();
         $step = $now - $timestamp;
 
@@ -70,4 +49,4 @@ class DateTimeUtil {
 }
 
 // 使用示例
-echo DateTimeUtil::get_instance()->get_chinese_friendly_datetime(time()-24*3600*365*12);
+echo DateTimeUtil::get_chinese_standard_datetime();
