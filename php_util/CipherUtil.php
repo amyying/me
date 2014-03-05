@@ -7,7 +7,6 @@
  * 2013-11-14
  */
 
-date_default_timezone_set('Asia/ShangHai');
 
 class CipherUtil {
 
