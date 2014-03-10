@@ -100,7 +100,7 @@ class LogUtil {
         $ip = get_user_ip();
         $arr_trace = debug_backtrace();
         //$trace = end($arr_trace);
-		$trace = $arr_trace[1];
+        $trace = $arr_trace[1];
         $file = basename($trace['file']);
         $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
         return "[{$datetime}] [{$priority}] [{$ip}] [{$file}:{$trace['line']}] [{$uri}] [{$msg}]" . PHP_EOL;
