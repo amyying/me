@@ -1,142 +1,152 @@
 <?php
 
 /**
- * 日志通用类
- * 日志分为四个级别：fatal,warn,debug,info
+ * Util class of writing log
+ * it includes 4 levels:
+ * fatal, warn, debug(only use in development), info.
  *
- * 使用前
- * 需要在构造函数中配置日志路径，默认使用的是站点根目录下的log目录，要给写入权限
- * 至于日志文件的大小限制和数量視情况而定，可以使用默认值
+ * Befire using it, you should config some params in constructor:
+ * 1. set dir log, and it must be writable by others, default ./log/;
+ * 2. set max size of a single log file, default 1GB;
+ * 3. set max log files num per day, default 1.
  *
- * 使用示例：
+ * For example:
  * require 'LogUtil.php';
+ * LogUtil::instance()->info('info msg');
  * LogUtil::instance()->debug('debug msg');
- * output:
- * [2013-11-01 18:31:03][DEBUG][127.0.0.1][LogUtil.php:151][/LogUtil.php][debug msg]
+ * sleep(3);
+ * LogUtil::instance()->warn('warn msg');
+ * sleep(3);
+ * LogUtil::instance()->fatal('fatal msg');
+ * 
+ * Output:
+ * [2014-03-10 04:03:56][INFO][127.0.0.1][LogUtil.php:205][][info msg]
+ * [2014-03-10 04:03:56][WARN][127.0.0.1][LogUtil.php:206][][warn msg]
+ * [2014-03-10 04:03:59][DEBUG][127.0.0.1][LogUtil.php:208][][debug msg]
+ * [2014-03-10 04:04:02][FATAL][127.0.0.1][LogUtil.php:210][][fatal msg]
  *
- * wei.chungwei@gmail.com
- * 2013-11-11
+ * Author: wei.chungwei@gmail.com
+ * Create: 2013-11-01
+ * Update: 2014-03-10
  */
 
 class LogUtil {
 
-    private static $_obj_instance;
-    private $_log_dir; // 日志路径，该目录必须要有写入权限，默认是当前目录下的log目录
-    private $_log_max_size; // 单个日志文件的最大值，默认是1G
-    private $_log_max_num; // 每天最多产生的日志文件数量，默认是1（这也是开发环境的推荐值）
+    private static $_obj_instance = NULL;
+    private static $_arr_conf = array();
 
     private function __construct() {
-        $this->_log_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR;
-        $this->_log_max_size = 1 << 30;
-        $this->_log_max_num = 1;
+        if (!isset(self::$_arr_conf) OR !self::$_arr_conf) {
+            self::$_arr_conf['dir'] = dirname(__FILE__).DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR;
+            self::$_arr_conf['env'] = 'DEVELOPMENT';
+            self::$_arr_conf['max_size'] = 1<<30;
+            self::$_arr_conf['max_num'] = 1;
+        }
+
+        if (isset(self::$_arr_conf['dir']) AND self::$_arr_conf['dir']) {
+            try {
+                if (!is_dir(self::$_arr_conf['dir'])) {
+                    mkdir(self::$_arr_conf['dir'], 0646, TRUE) or die('create '.self::$_arr_conf['dir'].' failed');
+                }
+            } catch (Exception $e) {
+                die('create '.self::$_arr_conf['dir'].' failed accoured at '.basename(__FILE__).':'.__LINE__.' with msg : '.$e->getMessage());
+            }
+            
+        }
     }
 
     public static function instance() {
-        if (!isset(self::$_obj_instance)) {
+        if (!isset(self::$_obj_instance) OR !self::$_obj_instance) {
             $c = __CLASS__;
             self::$_obj_instance = new $c;
         }
+        self::$_arr_conf['time'] = time();
 
         return self::$_obj_instance;
     }
 
     public function __clone() {
-        trigger_error('singleton clone is not allowed.', E_USER_ERROR);
+        trigger_error('singleton LogUtil clone is not allowed.', E_USER_ERROR);
     }
 
     public function free() {
-        self::$_obj_instance = null;
+        self::$_obj_instance = NULL;
+        self::$_arr_conf = NULL;
     }
 
     public function info($msg) {
-        $time = time();
-        $log_name = $this->get_log_name($time);
-        $this->check_file_size($time, $log_name);
-        $log_msg = $this->format_log_msg($msg, $time, "INFO");
-        $this->write_log($time, $log_name, $log_msg);
+        $this->log_business($msg, __FUNCTION__);
     }
 
     public function debug($msg) {
-        $time = time();
-        $log_name = $this->get_log_name($time);
-        $this->check_file_size($time, $log_name);
-        $log_msg = $this->format_log_msg($msg, $time, "DEBUG");
-        $this->write_log($time, $log_name, $log_msg);
-    }
-
-    public function fatal($msg) {
-        $time = time();
-        $log_name = $this->get_log_name($time);
-        $this->check_file_size($time, $log_name);
-        $log_msg = $this->format_log_msg($msg, $time, "FATAL");
-        $this->write_log($time, $log_name, $log_msg);
-        $this->free();
+        if (isset(self::$_arr_conf['env']) AND self::$_arr_conf['env'] == 'DEVELOPMENT') {
+            $this->log_business($msg, __FUNCTION__);
+        }
     }
 
     public function warn($msg) {
-        $time = time();
-        $log_name = $this->get_log_name($time);
-        $this->check_file_size($time, $log_name);
-        $log_msg = $this->format_log_msg($msg, $time, "WARN");
-        $this->write_log($time, $log_name, $log_msg);
+        $this->log_business($msg, __FUNCTION__);
+    }
+
+    public function fatal($msg) {
+        $this->log_business($msg, __FUNCTION__);
     }
 
     /**
-     * 获取日志文件名称
-     * 文件名称格式=当前日期+随机数.log
-     * 以避免单个日志文件过大
+     * get log file name.
+     * file name="current date + rand num".log
      */
-    private function get_log_name($time) {
-        $seq_num = rand(1, $this->_log_max_num);
-        return $this->_log_dir . date("Y-m-d", $time) . "-{$seq_num}.log";
+    private function get_log_name() {
+        $seq = mt_rand(1, self::$_arr_conf['max_num']);
+        return self::$_arr_conf['dir'].date("Y-m-d", self::$_arr_conf['time'])."-{$seq}.log";
     }
 
     /**
-     * 格式化日志信息
+     * format log msg like:
+     * [2013-11-01 18:31:03][DEBUG][127.0.0.1][LogUtil.php:151][/LogUtil.php][debug msg]
      */
-    private function format_log_msg($msg, $time, $priority) {
-        $datetime = date("Y-m-d H:i:s", $time);
+    private function format_log_msg($msg, $priority) {
+        $datetime = date("Y-m-d H:i:s", self::$_arr_conf['time']);
         $priority = strtoupper(trim($priority));
         $ip = get_user_ip();
         $arr_trace = debug_backtrace();
-        //$trace = end($arr_trace);
         $trace = $arr_trace[1];
         $file = basename($trace['file']);
         $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-        return "[{$datetime}] [{$priority}] [{$ip}] [{$file}:{$trace['line']}] [{$uri}] [{$msg}]" . PHP_EOL;
+        return "[{$datetime}][{$priority}][{$ip}][{$file}:{$trace['line']}][{$uri}][{$msg}]".PHP_EOL;
     }
 
     /**
-     * 检测单个日志文件大小，大于1G则重命名该日志文件
-     * 这样可以避免对大文件的读写过慢
+     * check sizes of a single log file,
+     * rename it if > 1GB to avoid low performance.
+     * the new log file will be readable only.
      */
-    private function check_file_size($time, $log_name) {
+    private function check_file_size($log_name) {
         try {
-            if (file_exists($log_name) && filesize($log_name) >= $this->_log_max_size) {
-                // if log size >= 1GB(default),
-                // then rename this file and make it readonly
-                $rename_log_file = $this->_log_dir . date("Y-m-d H:i:s", $time) . rand(1, 100) . '.log';
-                rename($log_name, $rename_log_file);
-                chmod($rename_log_file, 0444); // 只有可读权限
+            if (file_exists($log_name) AND filesize($log_name) >= self::$_arr_conf['max_size']) {
+                $rename_file = self::$_arr_conf['dir'].date("Y-m-d H:i:s", self::$_arr_conf['time']).mt_rand(100, 999).'.log';
+                rename($log_name, $rename_file);
+                chmod($rename_file, 0444); // readable only
             }
         } catch (Exception $e) {
-            die('error accoured at ' . basename(__FILE__) . ':' . __LINE__ . " with msg : " . $e->getMessage());
+            die('error accoured at '.basename(__FILE__).':'.__LINE__." with msg : ".$e->getMessage());
         }
     }
 
     /**
-     * 将日志信息写入文件
+     * write log msg into file
      */
-    private function write_log($time, $log_name, $log_msg = "") {
+    private function write_log($log_name, $log_msg = "") {
         try {
             if ($fp = fopen($log_name, 'a')) {
-                // 以下代码对文件加锁，1ms内加锁失败，继续枷锁；
-                // 超过1ms则让出锁给其他进程
+                // lock the log file for writing.
+                // if locking file failed in 1ms, try it again,
+                // otherwise free the lock to other proccess.
                 $start_time = microtime();
                 do {
                     $lock = flock($fp, LOCK_EX);
                     if(!$lock) {
-                        usleep(rand(10, 30000));
+                        usleep(mt_rand(10, 30000));
                     }
                 } while ((!$lock) && ((microtime() - $start_time) < 1000));
                 if ($lock) {
@@ -153,10 +163,22 @@ class LogUtil {
             die('error accoured at ' . basename(__FILE__) . ':' . __LINE__ . " with msg : " . $e->getMessage());
         }
     }
+
+    /**
+     * 2014-03-10
+     * @return [type] [description]
+     */
+    private function log_business($msg, $log_type) {
+        $log_name = $this->get_log_name();
+        $this->check_file_size($log_name);
+        $log_msg = $this->format_log_msg($msg, $log_type);
+        $this->write_log($log_name, $log_msg);
+    }
 }
 
 /**
- * 获取用户ip
+ * get user client ip.
+ * recommend refactor thie function
  */
 function get_user_ip() {
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
@@ -182,11 +204,3 @@ function get_user_ip() {
 
     return trim($ip);
 }
-
-/**
- * 使用示例
- */
-//LogUtil::instance()->info('info msg');
-//LogUtil::instance()->debug('debug msg');
-//LogUtil::instance()->warn('warn msg');
-//LogUtil::instance()->fatal('fatal msg');
