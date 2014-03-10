@@ -42,17 +42,8 @@ class LogUtil {
             self::$_arr_conf['env'] = 'DEVELOPMENT';
             self::$_arr_conf['max_size'] = 1<<30;
             self::$_arr_conf['max_num'] = 1;
-        }
 
-        if (isset(self::$_arr_conf['dir']) AND self::$_arr_conf['dir']) {
-            try {
-                if (!is_dir(self::$_arr_conf['dir'])) {
-                    mkdir(self::$_arr_conf['dir'], 0646, TRUE) or die('create '.self::$_arr_conf['dir'].' failed');
-                }
-            } catch (Exception $e) {
-                die('create '.self::$_arr_conf['dir'].' failed accoured at '.basename(__FILE__).':'.__LINE__.' with msg : '.$e->getMessage());
-            }
-            
+            $this->create_log_dir(self::$_arr_conf['dir']);
         }
     }
 
@@ -129,8 +120,10 @@ class LogUtil {
                 rename($log_name, $rename_file);
                 chmod($rename_file, 0444); // readable only
             }
+            return TRUE;
         } catch (Exception $e) {
-            die('error accoured at '.basename(__FILE__).':'.__LINE__." with msg : ".$e->getMessage());
+            echo 'error accoured at '.basename(__FILE__).':'.__LINE__." with msg : ".$e->getMessage();
+            return FALSE;
         }
     }
 
@@ -139,6 +132,7 @@ class LogUtil {
      */
     private function write_log($log_name, $log_msg = "") {
         try {
+            clearstatcache();
             if ($fp = fopen($log_name, 'a')) {
                 // lock the log file for writing.
                 // if locking file failed in 1ms, try it again,
@@ -156,12 +150,14 @@ class LogUtil {
                 }
                 fclose($fp);
                 chmod($log_name, 0666);
+                return TRUE;
             } else {
-                die("open {$log_name} failed at " . basename(__FILE__) . " line " . __LINE__);
+                echo "open {$log_name} failed at ".basename(__FILE__)." line ".__LINE__;
+                return FALSE;
             }
-            clearstatcache();
         } catch (Exception $e) {
-            die('error accoured at ' . basename(__FILE__) . ':' . __LINE__ . " with msg : " . $e->getMessage());
+            echo 'error accoured at '.basename(__FILE__).':'.__LINE__." : ".$e->getMessage();
+            return FALSE;
         }
     }
 
@@ -174,6 +170,27 @@ class LogUtil {
         $this->check_file_size($log_name);
         $log_msg = $this->format_log_msg($msg, $log_type);
         $this->write_log($log_name, $log_msg);
+    }
+
+    /**
+     * 2014-03-10
+     */
+    private function create_log_dir($dir) {
+        if ($dir) {
+            try {
+                if (!is_dir($dir)) {
+                    if (FALSE == mkdir($dir, 0646, TRUE)) {
+                        echo "create $dir failed. please try it again or create manul.";
+                        return FALSE;
+                    }
+                    return TRUE;
+                }
+            } catch (Exception $e) {
+                echo "create $dir failed ".basename(__FILE__).':'.__LINE__.' : '.$e->getMessage();
+                return FALSE;
+            }
+        }
+        return FALSE;
     }
 }
 
