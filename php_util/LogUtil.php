@@ -8,7 +8,8 @@
  * Befire using it, you should config some params in constructor:
  * 1. set dir log, and it must be writable by others, default ./log/;
  * 2. set max size of a single log file, default 1GB;
- * 3. set max log files num per day, default 1.
+ * 3. set max log files num per day, default 1;
+ * 4. set env value, default DEVELOPMENT.
  *
  * For example:
  * require 'LogUtil.php';
