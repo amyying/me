@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Util class of writing log
+ * Util class for writing log
  * it includes 4 levels:
  * fatal, warn, debug(only use in development), info.
  *
@@ -102,7 +102,7 @@ class LogUtil {
         $priority = strtoupper(trim($priority));
         $ip = get_user_ip();
         $arr_trace = debug_backtrace();
-        $trace = $arr_trace[1];
+        $trace = $arr_trace[2]; // Pls pay attention to the array index.
         $file = basename($trace['file']);
         $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
         return "[{$datetime}][{$priority}][{$ip}][{$file}:{$trace['line']}][{$uri}][{$msg}]".PHP_EOL;
