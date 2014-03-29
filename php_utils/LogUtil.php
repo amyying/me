@@ -38,7 +38,7 @@ class LogUtil {
 
     private function __construct() {
         if (!isset(self::$_arr_conf) OR !self::$_arr_conf) {
-            self::$_arr_conf['dir'] = dirname(__FILE__).DIRECTORY_SEPARATOR.'log'.DIRECTORY_SEPARATOR;
+            self::$_arr_conf['dir'] = dirname(__FILE__).DIRECTORY_SEPARATOR.'logs'.DIRECTORY_SEPARATOR;
             self::$_arr_conf['env'] = 'DEVELOPMENT';
             self::$_arr_conf['max_size'] = 1<<30;
             self::$_arr_conf['max_num'] = 1;
@@ -132,7 +132,6 @@ class LogUtil {
      */
     private function write_log($log_name, $log_msg = "") {
         try {
-            clearstatcache();
             if ($fp = fopen($log_name, 'a')) {
                 // lock the log file for writing.
                 // if locking file failed in 1ms, try it again,
@@ -144,12 +143,18 @@ class LogUtil {
                         usleep(mt_rand(10, 30000));
                     }
                 } while ((!$lock) && ((microtime() - $start_time) < 1000));
+
                 if ($lock) {
                     fwrite($fp, $log_msg);
                     flock($fp, LOCK_UN);
                 }
                 fclose($fp);
-                chmod($log_name, 0666);
+
+                if (!is_writable($log_name)) {
+                    chmod($log_name, 0666);
+                }
+                
+                clearstatcache();
                 return TRUE;
             } else {
                 echo "open {$log_name} failed at ".basename(__FILE__)." line ".__LINE__;
@@ -179,7 +184,7 @@ class LogUtil {
         if ($dir) {
             try {
                 if (!is_dir($dir)) {
-                    if (FALSE == mkdir($dir, 0646, TRUE)) {
+                    if (FALSE == mkdir($dir, 0777, TRUE)) {
                         echo "create $dir failed. please try it again or create manul.";
                         return FALSE;
                     }
@@ -201,18 +206,19 @@ class LogUtil {
 function get_user_ip() {
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
         $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        echo __LINE__.$ip;
     } elseif (isset($_SERVER['HTTP_CLIENTIP'])) {
-        $ip = $_SERVER['HTTP_CLIENTIP'];
+        $ip = $_SERVER['HTTP_CLIENTIP'];echo __LINE__.$ip;
     } elseif (isset($_SERVER['REMOTE_ADDR'])) {
-        $ip = $_SERVER['REMOTE_ADDR'];
+        $ip = $_SERVER['REMOTE_ADDR'];echo __LINE__.$ip;
     } elseif (getenv('HTTP_X_FORWARDED_FOR')) {
-        $ip = getenv('HTTP_X_FORWARDED_FOR');
+        $ip = getenv('HTTP_X_FORWARDED_FOR');echo __LINE__.$ip;
     } elseif (getenv('HTTP_CLIENTIP')) {
-        $ip = getenv('HTTP_CLIENTIP');
+        $ip = getenv('HTTP_CLIENTIP');echo __LINE__.$ip;
     } elseif (getenv('REMOTE_ADDR')) {
-        $ip = getenv('REMOTE_ADDR');
+        $ip = getenv('REMOTE_ADDR');echo __LINE__.$ip;
     } else {
-        $ip = '127.0.0.1';
+        $ip = '127.0.0.1';echo __LINE__.$ip;
     }
 
     $pos = strpos($ip, ',');
@@ -222,3 +228,6 @@ function get_user_ip() {
 
     return trim($ip);
 }
+
+
+LogUtil::instance()->fatal('fatal msg');
