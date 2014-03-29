@@ -28,7 +28,7 @@
  *
  * Author: wei.chungwei@gmail.com
  * Create: 2013-11-01
- * Update: 2014-03-10
+ * Update: 2014-03-29
  */
 
 class LogUtil {
@@ -153,7 +153,7 @@ class LogUtil {
                 if (!is_writable($log_name)) {
                     chmod($log_name, 0666);
                 }
-                
+
                 clearstatcache();
                 return TRUE;
             } else {
@@ -206,19 +206,18 @@ class LogUtil {
 function get_user_ip() {
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
         $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        echo __LINE__.$ip;
     } elseif (isset($_SERVER['HTTP_CLIENTIP'])) {
-        $ip = $_SERVER['HTTP_CLIENTIP'];echo __LINE__.$ip;
+        $ip = $_SERVER['HTTP_CLIENTIP'];
     } elseif (isset($_SERVER['REMOTE_ADDR'])) {
-        $ip = $_SERVER['REMOTE_ADDR'];echo __LINE__.$ip;
+        $ip = $_SERVER['REMOTE_ADDR'];
     } elseif (getenv('HTTP_X_FORWARDED_FOR')) {
-        $ip = getenv('HTTP_X_FORWARDED_FOR');echo __LINE__.$ip;
+        $ip = getenv('HTTP_X_FORWARDED_FOR');
     } elseif (getenv('HTTP_CLIENTIP')) {
-        $ip = getenv('HTTP_CLIENTIP');echo __LINE__.$ip;
+        $ip = getenv('HTTP_CLIENTIP');
     } elseif (getenv('REMOTE_ADDR')) {
-        $ip = getenv('REMOTE_ADDR');echo __LINE__.$ip;
+        $ip = getenv('REMOTE_ADDR');
     } else {
-        $ip = '127.0.0.1';echo __LINE__.$ip;
+        $ip = '127.0.0.1';
     }
 
     $pos = strpos($ip, ',');
@@ -228,6 +227,3 @@ function get_user_ip() {
 
     return trim($ip);
 }
-
-
-LogUtil::instance()->fatal('fatal msg');
