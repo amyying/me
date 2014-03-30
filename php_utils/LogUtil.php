@@ -28,7 +28,7 @@
  *
  * Author: wei.chungwei@gmail.com
  * Create: 2013-11-01
- * Update: 2014-03-29
+ * Update: 2014-03-30
  */
 
 class LogUtil {
@@ -66,22 +66,37 @@ class LogUtil {
         self::$_arr_conf = NULL;
     }
 
-    public function info($msg) {
-        $this->log_business($msg, __FUNCTION__);
+    public static function info($msg) {
+        LogUtil::instance()->set_log($msg, __FUNCTION__);
     }
 
-    public function debug($msg) {
-        if (isset(self::$_arr_conf['env']) AND self::$_arr_conf['env'] == 'DEVELOPMENT') {
-            $this->log_business($msg, __FUNCTION__);
+    public static function debug($msg) {
+        LogUtil::instance()->set_log($msg, __FUNCTION__);
+    }
+
+    public static function warn($msg) {
+        LogUtil::instance()->set_log($msg, __FUNCTION__);
+    }
+
+    public static function fatal($msg) {
+        LogUtil::instance()->set_log($msg, __FUNCTION__);
+    }
+
+    /**
+     * 2014-03-30
+     * [set_log description]
+     * @param [type] $msg      [description]
+     * @param string $log_type [DEBUG/INFO/WARN/FATAL]
+     */
+    public function set_log($msg, $log_type = 'DEBUG') {
+        $type = strtoupper($log_type);
+        if (isset(self::$_arr_conf['env']) AND self::$_arr_conf['env'] != 'DEVELOPMENT' AND $type == 'DEBUG') {
+            return FALSE;
         }
-    }
-
-    public function warn($msg) {
-        $this->log_business($msg, __FUNCTION__);
-    }
-
-    public function fatal($msg) {
-        $this->log_business($msg, __FUNCTION__);
+        $log_name = $this->get_log_name();
+        $this->check_file_size($log_name);
+        $log_msg = $this->format_log_msg($msg, $type);
+        $this->write_log($log_name, $log_msg);
     }
 
     /**
@@ -100,9 +115,9 @@ class LogUtil {
     private function format_log_msg($msg, $priority) {
         $datetime = date("Y-m-d H:i:s", self::$_arr_conf['time']);
         $priority = strtoupper(trim($priority));
-        $ip = get_user_ip();
+        $ip = $this->get_user_ip();
         $arr_trace = debug_backtrace();
-        $trace = $arr_trace[2]; // Pls pay attention to the array index.
+        $trace = isset($arr_trace[2]) ? $arr_trace[2] : end($arr_trace); // Pls pay attention to the array index.
         $file = basename($trace['file']);
         $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
         return "[{$datetime}][{$priority}][{$ip}][{$file}:{$trace['line']}][{$uri}][{$msg}]".PHP_EOL;
@@ -123,6 +138,7 @@ class LogUtil {
             return TRUE;
         } catch (Exception $e) {
             echo 'error accoured at '.basename(__FILE__).':'.__LINE__." with msg : ".$e->getMessage();
+            $this->free();
             return FALSE;
         }
     }
@@ -162,19 +178,9 @@ class LogUtil {
             }
         } catch (Exception $e) {
             echo 'error accoured at '.basename(__FILE__).':'.__LINE__." : ".$e->getMessage();
+            $this->free();
             return FALSE;
         }
-    }
-
-    /**
-     * 2014-03-10
-     * @return [type] [description]
-     */
-    private function log_business($msg, $log_type) {
-        $log_name = $this->get_log_name();
-        $this->check_file_size($log_name);
-        $log_msg = $this->format_log_msg($msg, $log_type);
-        $this->write_log($log_name, $log_msg);
     }
 
     /**
@@ -186,44 +192,46 @@ class LogUtil {
                 if (!is_dir($dir)) {
                     if (FALSE == mkdir($dir, 0777, TRUE)) {
                         echo "create $dir failed. please try it again or create manul.";
+                        $this->free();
                         return FALSE;
                     }
                     return TRUE;
                 }
             } catch (Exception $e) {
                 echo "create $dir failed ".basename(__FILE__).':'.__LINE__.' : '.$e->getMessage();
+                $this->free();
                 return FALSE;
             }
         }
         return FALSE;
     }
-}
 
-/**
- * get user client ip.
- * recommend refactor thie function
- */
-function get_user_ip() {
-    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } elseif (isset($_SERVER['HTTP_CLIENTIP'])) {
-        $ip = $_SERVER['HTTP_CLIENTIP'];
-    } elseif (isset($_SERVER['REMOTE_ADDR'])) {
-        $ip = $_SERVER['REMOTE_ADDR'];
-    } elseif (getenv('HTTP_X_FORWARDED_FOR')) {
-        $ip = getenv('HTTP_X_FORWARDED_FOR');
-    } elseif (getenv('HTTP_CLIENTIP')) {
-        $ip = getenv('HTTP_CLIENTIP');
-    } elseif (getenv('REMOTE_ADDR')) {
-        $ip = getenv('REMOTE_ADDR');
-    } else {
-        $ip = '127.0.0.1';
+    /**
+     * get user client ip.
+     * recommend refactor thie function
+     */
+    private function get_user_ip() {
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } elseif (isset($_SERVER['HTTP_CLIENTIP'])) {
+            $ip = $_SERVER['HTTP_CLIENTIP'];
+        } elseif (isset($_SERVER['REMOTE_ADDR'])) {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        } elseif (getenv('HTTP_X_FORWARDED_FOR')) {
+            $ip = getenv('HTTP_X_FORWARDED_FOR');
+        } elseif (getenv('HTTP_CLIENTIP')) {
+            $ip = getenv('HTTP_CLIENTIP');
+        } elseif (getenv('REMOTE_ADDR')) {
+            $ip = getenv('REMOTE_ADDR');
+        } else {
+            $ip = '127.0.0.1';
+        }
+
+        $pos = strpos($ip, ',');
+        if( $pos > 0 ) {
+            $ip = substr($ip, 0, $pos);
+        }
+
+        return trim($ip);
     }
-
-    $pos = strpos($ip, ',');
-    if( $pos > 0 ) {
-        $ip = substr($ip, 0, $pos);
-    }
-
-    return trim($ip);
 }

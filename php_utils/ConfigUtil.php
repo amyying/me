@@ -44,7 +44,7 @@
  * 
  * Author: wei.chungwei@gmail.com
  * Create: 2014-03-11
- * Update: 2014-03-11
+ * Update: 2014-03-30
  */
 
 define('CONFPATH', 'config'.DIRECTORY_SEPARATOR);
@@ -64,14 +64,15 @@ class ConfigUtil {
             if (!isset(self::$_arr_config) OR !self::$_arr_config) {
                 $config = CONFPATH.'config.'.self::$_arr_env_map[ENVIROMENT].'.ini'; 
                 if (file_exists($config)) {
-                    self::$_arr_config = parse_ini_file($config, true);
+                    self::$_arr_config = parse_ini_file($config, TRUE);
                 } else {
-                    die("{$config} doesnot exists or unreadable.");
+                    $this->free();
+                    echo "{$config} doesnot exists or unreadable.";
                 }
             }
         } catch (Exception $e) {
-            die('init config failed:'.$e->getMessage());
             $this->free();
+            echo 'init ConfigUtil failed:'.$e->getMessage();
         }
     }
 
@@ -85,7 +86,7 @@ class ConfigUtil {
     }
 
     public function __clone() {
-        trigger_error('singleton LogUtil clone is not allowed.', E_USER_ERROR);
+        trigger_error('singleton ConfigUtil clone is not allowed.', E_USER_ERROR);
     }
 
     public function free() {
@@ -105,6 +106,7 @@ class ConfigUtil {
             if (is_array($nodes) AND $nodes) {
                 $arr = array();
                 foreach ($nodes as $node) {
+                    $node = trim($node);
                     if (isset(self::$_arr_config[$node])) {
                         $arr[$node] = self::$_arr_config[$node];
                     }
@@ -112,6 +114,20 @@ class ConfigUtil {
                 return $arr ? $arr : self::$_arr_config;
             }
         }
+        echo "Config is empty. Pls check it.";
         return FALSE;
+    }
+
+    public static function get_node($node = NULL) {
+        if (!$node OR !is_string($node)) {
+            echo "$node format error.";
+            return FALSE;
+        }
+        $ret = ConfigUtil::instance()->load($node);
+        return isset($ret[$node]) ? $ret[$node] : FALSE;
+    }
+
+    public function get_nodes($nodes = NULL) {
+        return ConfigUtil::instance()->load($nodes);
     }
 }

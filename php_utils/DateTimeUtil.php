@@ -9,17 +9,17 @@
 
 class DateTimeUtil {
 
-    public static function get_chinese_standard_datetime($timestamp = null) {
+    public static function get_chinese_standard_datetime($timestamp = NULL) {
         $format = "Y年m月d日 H点i分s秒";
         return date($format, $timestamp ? $timestamp : time());
     }
 
-    public static function get_chinese_standard_time($timestamp = null) {
+    public static function get_chinese_standard_time($timestamp = NULL) {
         $format = "H点i分s秒";
         return date($format, $timestamp ? $timestamp : time());
     }
 
-    public static function get_chinese_standard_date($timestamp = null) {
+    public static function get_chinese_standard_date($timestamp = NULL) {
         $format = "Y年m月d日";
         return date($format, $timestamp ? $timestamp : time());
     }
