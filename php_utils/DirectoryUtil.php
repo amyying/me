@@ -14,14 +14,12 @@ class DirectoryUtil {
             try {
                 if (!is_dir($dir)) {
                     if (FALSE == mkdir($dir, 0646, TRUE)) {
-                        echo "create $dir failed. please try it again or create manully.";
-                        return FALSE;
+                        throw new Exception("create $dir failed. please try it again or create manully.");
                     }
                     return TRUE;
                 }
             } catch (Exception $e) {
-                echo "create $dir failed ".basename(__FILE__).':'.__LINE__.' : '.$e->getMessage();
-                return FALSE;
+                throw new Exception("create $dir failed ".basename(__FILE__).':'.__LINE__.' : '.$e->getMessage());
             }
         }
         return FALSE;

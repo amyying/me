@@ -13,12 +13,12 @@
  *
  * For example:
  * require 'LogUtil.php';
- * LogUtil::instance()->info('info msg');
- * LogUtil::instance()->debug('debug msg');
+ * LogUtil::get_instance()->info('info msg');
+ * LogUtil::get_instance()->debug('debug msg');
  * sleep(3);
- * LogUtil::instance()->warn('warn msg');
+ * LogUtil::get_instance()->warn('warn msg');
  * sleep(3);
- * LogUtil::instance()->fatal('fatal msg');
+ * LogUtil::get_instance()->fatal('fatal msg');
  * 
  * Output:
  * [2014-03-10 04:03:56][INFO][127.0.0.1][LogUtil.php:205][][info msg]
@@ -28,58 +28,60 @@
  *
  * Author: wei.chungwei@gmail.com
  * Create: 2013-11-01
- * Update: 2014-03-30
+ * Update: 2014-03-31
  */
 
 class LogUtil {
 
-    private static $_obj_instance = NULL;
-    private static $_arr_conf = array();
+    private static $_instance = NULL;
+    private static $_config = array();
 
     private function __construct() {
-        if (!isset(self::$_arr_conf) OR !self::$_arr_conf) {
-            self::$_arr_conf['dir'] = dirname(__FILE__).DIRECTORY_SEPARATOR.'logs'.DIRECTORY_SEPARATOR;
-            self::$_arr_conf['env'] = 'DEVELOPMENT';
-            self::$_arr_conf['max_size'] = 1<<30;
-            self::$_arr_conf['max_num'] = 1;
+        if (!isset(self::$_config) OR !self::$_config) {
+            self::$_config['dir'] = dirname(__FILE__).DIRECTORY_SEPARATOR.'logs'.DIRECTORY_SEPARATOR;
+            self::$_config['env'] = 'DEVELOPMENT';
+            self::$_config['max_size'] = 1<<30;
+            self::$_config['max_num'] = 1;
 
-            $this->create_log_dir(self::$_arr_conf['dir']);
+            $this->create_log_dir(self::$_config['dir']);
         }
     }
 
-    public static function instance() {
-        if (!isset(self::$_obj_instance) OR !self::$_obj_instance) {
+    public static function get_instance() {
+        if (!isset(self::$_instance) OR !self::$_instance) {
             $c = __CLASS__;
-            self::$_obj_instance = new $c;
+            self::$_instance = new $c;
         }
-        self::$_arr_conf['time'] = time();
+        self::$_config['time'] = time();
 
-        return self::$_obj_instance;
+        return self::$_instance;
     }
 
     public function __clone() {
-        trigger_error('singleton LogUtil clone is not allowed.', E_USER_ERROR);
+        throw new Exception('singleton LogUtil clone is not allowed.');
     }
 
     public function free() {
-        self::$_obj_instance = NULL;
-        self::$_arr_conf = NULL;
+        self::$_instance = NULL;
+        self::$_config = NULL;
     }
 
-    public static function info($msg) {
-        LogUtil::instance()->set_log($msg, __FUNCTION__);
+    public function info($msg) {
+        $this->set_log($msg, __FUNCTION__);
     }
 
-    public static function debug($msg) {
-        LogUtil::instance()->set_log($msg, __FUNCTION__);
+    public function debug($msg) {
+        if (isset(self::$_config['env']) AND self::$_config['env']=='DEVELOPMENT') {
+            $this->set_log($msg, __FUNCTION__);
+        }
     }
 
-    public static function warn($msg) {
-        LogUtil::instance()->set_log($msg, __FUNCTION__);
+    public function warn($msg) {
+        $this->set_log($msg, __FUNCTION__);
     }
 
-    public static function fatal($msg) {
-        LogUtil::instance()->set_log($msg, __FUNCTION__);
+    public function fatal($msg) {
+        $this->set_log($msg, __FUNCTION__);
     }
 
     /**
@@ -88,14 +90,10 @@ class LogUtil {
      * @param [type] $msg      [description]
      * @param string $log_type [DEBUG/INFO/WARN/FATAL]
      */
-    public function set_log($msg, $log_type = 'DEBUG') {
-        $type = strtoupper($log_type);
-        if (isset(self::$_arr_conf['env']) AND self::$_arr_conf['env'] != 'DEVELOPMENT' AND $type == 'DEBUG') {
-            return FALSE;
-        }
+    private function set_log($msg, $log_type = 'DEBUG') {
         $log_name = $this->get_log_name();
         $this->check_file_size($log_name);
-        $log_msg = $this->format_log_msg($msg, $type);
+        $log_msg = $this->format_log_msg($msg, $log_type);
         $this->write_log($log_name, $log_msg);
     }
 
@@ -104,8 +102,8 @@ class LogUtil {
      * file name="current date + rand num".log
      */
     private function get_log_name() {
-        $seq = mt_rand(1, self::$_arr_conf['max_num']);
-        return self::$_arr_conf['dir'].date("Y-m-d", self::$_arr_conf['time'])."-{$seq}.log";
+        $seq = mt_rand(1, self::$_config['max_num']);
+        return self::$_config['dir'].date("Y-m-d", self::$_config['time'])."-{$seq}.log";
     }
 
     /**
@@ -113,7 +111,7 @@ class LogUtil {
      * [2013-11-01 18:31:03][DEBUG][127.0.0.1][LogUtil.php:151][/LogUtil.php][debug msg]
      */
     private function format_log_msg($msg, $priority) {
-        $datetime = date("Y-m-d H:i:s", self::$_arr_conf['time']);
+        $datetime = date("Y-m-d H:i:s", self::$_config['time']);
         $priority = strtoupper(trim($priority));
         $ip = $this->get_user_ip();
         $arr_trace = debug_backtrace();
@@ -130,16 +128,15 @@ class LogUtil {
      */
     private function check_file_size($log_name) {
         try {
-            if (file_exists($log_name) AND filesize($log_name) >= self::$_arr_conf['max_size']) {
-                $rename_file = self::$_arr_conf['dir'].date("Y-m-d H:i:s", self::$_arr_conf['time']).mt_rand(100, 999).'.log';
+            if (file_exists($log_name) AND filesize($log_name) >= self::$_config['max_size']) {
+                $rename_file = self::$_config['dir'].date("Y-m-d H:i:s", self::$_config['time']).mt_rand(10, 99).'.log';
                 rename($log_name, $rename_file);
                 chmod($rename_file, 0444); // readable only
             }
             return TRUE;
         } catch (Exception $e) {
-            echo 'error accoured at '.basename(__FILE__).':'.__LINE__." with msg : ".$e->getMessage();
             $this->free();
-            return FALSE;
+            throw new Exception('error accoured at '.basename(__FILE__).':'.__LINE__." with msg : ".$e->getMessage());
         }
     }
 
@@ -158,7 +155,7 @@ class LogUtil {
                     if(!$lock) {
                         usleep(mt_rand(10, 30000));
                     }
-                } while ((!$lock) && ((microtime() - $start_time) < 1000));
+                } while ((!$lock) && ((microtime()-$start_time)<1000));
 
                 if ($lock) {
                     fwrite($fp, $log_msg);
@@ -173,13 +170,11 @@ class LogUtil {
                 clearstatcache();
                 return TRUE;
             } else {
-                echo "open {$log_name} failed at ".basename(__FILE__)." line ".__LINE__;
-                return FALSE;
+                throw new Exception("open {$log_name} failed at ".basename(__FILE__)." line ".__LINE__);
             }
         } catch (Exception $e) {
-            echo 'error accoured at '.basename(__FILE__).':'.__LINE__." : ".$e->getMessage();
             $this->free();
-            return FALSE;
+            throw new Exception('error accoured at '.basename(__FILE__).':'.__LINE__." : ".$e->getMessage());
         }
     }
 
@@ -191,16 +186,14 @@ class LogUtil {
             try {
                 if (!is_dir($dir)) {
                     if (FALSE == mkdir($dir, 0777, TRUE)) {
-                        echo "create $dir failed. please try it again or create manul.";
                         $this->free();
-                        return FALSE;
+                        throw new Exception("create $dir failed. please try it again or create manul.");
                     }
                     return TRUE;
                 }
             } catch (Exception $e) {
-                echo "create $dir failed ".basename(__FILE__).':'.__LINE__.' : '.$e->getMessage();
                 $this->free();
-                return FALSE;
+                throw new Exception("create $dir failed ".basename(__FILE__).':'.__LINE__.' : '.$e->getMessage());
             }
         }
         return FALSE;

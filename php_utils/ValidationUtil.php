@@ -6,7 +6,7 @@
  *
  * 使用示例：
  * require 'ValidationUtil.php';
- * ValidationUtil::instance()->validate_email('wei.chungwei@gmail.com');
+ * ValidationUtil::get_instance()->validate_email('wei.chungwei@gmail.com');
  * output:
  * 1
  *
@@ -17,7 +17,7 @@
 //date_default_timezone_set('Asia/ShangHai');
 
 class ValidationUtil {
-    private static $_obj_instance;
+    private static $_instance;
 
     const STATUS_SUCCESS = 1; // 验证成功
     const STATUS_ERROR_EMPTY_ARGS = -1001; // 传入的参数为空
@@ -35,20 +35,20 @@ class ValidationUtil {
 
     private function __construct() {}
 
-    public static function instance() {
-        if (!isset(self::$_obj_instance)) {
+    public static function get_instance() {
+        if (!isset(self::$_instance)) {
             $c = __CLASS__;
-            self::$_obj_instance = new $c;
+            self::$_instance = new $c;
         }
-        return self::$_obj_instance;
+        return self::$_instance;
     }
 
     public function __clone() {
-        trigger_error("singleton clone is not allowed.", E_USER_ERROR);
+        throw new Exception("singleton clone is not allowed.");
     }
 
     public function free() {
-        self::$_obj_instance = null;
+        self::$_instance = null;
     }
 
     /**
@@ -80,7 +80,7 @@ class ValidationUtil {
                     return self::STATUS_ERROR_ILLEGAL_DOMAIN;
                 }
             } catch (Exception $e) {
-                die($e->getMessage());
+                throw new Exception($e->getMessage());
             }
         }
 
@@ -255,8 +255,3 @@ class ValidationUtil {
         return self::STATUS_SUCCESS;
     }
 }
-
-// 使用示例
-//echo ValidationUtil::instance()->validate_postcode('533304');
-//echo '<br/>';
-//echo ValidationUtil::instance()->validate_ip('255.255.255.255');

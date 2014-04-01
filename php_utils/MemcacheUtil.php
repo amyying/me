@@ -2,90 +2,87 @@
 /**
  * 
  * example:
- * MemcacheUtil::instance()->set('test', 'hello world.');
- * MemcacheUtil::instance()->get('test'); // hello world.
+ * MemcacheUtil::get_instance()->set('test', 'hello world.');
+ * MemcacheUtil::get_instance()->get('test'); // hello world.
  *
  * wei.chungwei@gmail.com
  * 2014-03-04
  */
 class MemcacheUtil {
-    private static $obj_instance = NULL;
-    private static $obj_memcahce = NULL;
-    private static $arr_config = array();
+    private static $_instance = NULL;
+    private static $_memcahce = NULL;
+    private static $_config = array();
 
     private function __construct() {
         try {
-            if (!isset(self::$arr_config) OR !self::$arr_config) {
-                self::$arr_config['host'] = 'localhost';
-                self::$arr_config['port'] = '11211';
-                self::$arr_config['compression'] = false;
+            if (!isset(self::$_config) OR !self::$_config) {
+                self::$_config['host'] = 'localhost';
+                self::$_config['port'] = '11211';
+                self::$_config['compression'] = FALSE;
             }
-            if (self::$arr_config) {
-                if (!isset(self::$obj_memcahce) OR !self::$obj_memcahce) {
-                    self::$obj_memcahce = new Memcache;
+            if (self::$_config) {
+                if (!isset(self::$_memcahce) OR !self::$_memcahce) {
+                    self::$_memcahce = new Memcache;
                 }
             }
         } catch (Exception $e) {
-            Util_Log::instance()->warn('init memcache failed:'.$e->getMessage());
+            throw new Exception('init memcache failed:'.$e->getMessage());
         }
     }
 
-    public static function instance() {
+    public static function get_instance() {
         try {
-            if (!isset(self::$obj_instance) OR !self::$obj_instance) {
+            if (!isset(self::$_instance) OR !self::$_instance) {
                 $c = __CLASS__;
-                self::$obj_instance = new $c;
+                self::$_instance = new $c;
             }
-            return self::$obj_instance;
+            return self::$_instance;
         } catch (Exception $e) {
-            Util_Log::instance()->warn('init Util_Memcache failed:'.$e->getMessage());
+            throw new Exception('init MemcacheUtil failed:'.$e->getMessage());
         }
     }
 
     public function __clone() {
-        trigger_error('singleton clone is not allowed.', E_USER_ERROR);
+        throw new Exception('singleton clone is not allowed.');
     }
 
     public function free() {
-        self::$obj_instance = null;
-        self::$obj_memcahce = null;
-        self::$arr_config = array();
+        self::$_instance = NULL;
+        self::$_memcahce = NULL;
+        self::$_config = array();
     }
 
     public function set($key, $value, $expire = 0) {
-        $compression = isset(self::$arr_config['compression']) ? self::$arr_config['compression'] : false;
+        $compression = isset(self::$_config['compression']) ? self::$_config['compression'] : FALSE;
         $md5_key = md5($key);
         try {
-            $conn = self::$obj_memcahce->connect(self::$arr_config['host'], self::$arr_config['port']);
+            $conn = self::$_memcahce->connect(self::$_config['host'], self::$_config['port']);
             if (!$conn) {
-                Util_Log::instance()->warn("connect memcache failed");
-                return FALSE;
+                throw new Exception("connect memcache failed");
             }
-            $result = self::$obj_memcahce->set($md5_key, json_encode($value), $compression, $expire);
+            $result = self::$_memcahce->set($md5_key, json_encode($value), $compression, $expire);
             if ($result) {
-                Util_Log::instance()->info("memcache set {$md5_key} done");
+                throw new Exception("memcache set {$md5_key} done");
             } else {
-                Util_Log::instance()->warn("memcache set {$md5_key} failed");
+                throw new Exception("memcache set {$md5_key} failed");
             }
-            self::$obj_memcahce->close();
+            self::$_memcahce->close();
         } catch (Exception $e) {
-            Util_Log::instance()->warn("memcache set {$md5_key} failed:".$e->getMessage());
+            throw new Exception("memcache set {$md5_key} failed:".$e->getMessage());
         }
     }
 
     public function get($key) {
         try {
-            $conn = self::$obj_memcahce->connect(self::$arr_config['host'], self::$arr_config['port']);
+            $conn = self::$_memcahce->connect(self::$_config['host'], self::$_config['port']);
             if (!$conn) {
-                Util_Log::instance()->warn("connect memcache failed");
-                return FALSE;
+                throw new Exception("connect memcache failed");
             }
-            $result = self::$obj_memcahce->get(md5($key));
-            self::$obj_memcahce->close();
+            $result = self::$_memcahce->get(md5($key));
+            self::$_memcahce->close();
             return json_decode($result, TRUE);
         } catch (Exception $e) {
-            Util_Log::instance()->warn("memcache get ".md5($key)." failed:".$e->getMessage());
+            throw new Exception("memcache get ".md5($key)." failed:".$e->getMessage());
         }
     }
-
 }
