@@ -46,4 +46,11 @@ $app = require_once __DIR__.'/../bootstrap/start.php';
 |
 */
 
+define("DS", DIRECTORY_SEPARATOR);
+define("WEBROOT", __DIR__.DS);
+define("ROOT", WEBROOT.'..'.DS);
+define("APP", ROOT.'app'.DS);
+define("CONFIG", APP.'config'.DS);
+define("LAYOUT", APP.'views'.DS.'layouts'.DS);
+
 $app->run();

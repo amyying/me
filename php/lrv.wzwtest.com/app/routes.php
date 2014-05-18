@@ -11,11 +11,9 @@
 |
 */
 
-Route::get('/', function()
-{
-    return View::make('hello');
-});
-Route::get('home/me', 'HomeController@me');
+Route::get('/', 'HomeController@index');
+
+Route::get('news/detail', 'NewsController@detail');
 Route::get('test', 'TestController@index');
 
 // Route::get('/home/me', )
