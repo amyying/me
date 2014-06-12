@@ -4,7 +4,7 @@
 电话：1857667****  
 邮箱：wei.chungwei[at]gmail.com  
 博客：<a href="https://github.com/chungwei/me/issues" target="_blank">github.com/chungwei/me/issues</a>  
-示例：http://weizongwei.sinaapp.com  
+示例：<a href="http://weizongwei.sinaapp.com" target="_blank">weizongwei.sinaapp.com</a>  
 
 自我介绍
 ---
