@@ -1,6 +1,6 @@
 基本信息
 ---
-**宗伟　|　男　|　28岁　|　计算机专业/本科/工科学士　|　现居深圳**  
+**宗伟　|　男　|　28岁　|　计算机专业 / 本科 / 工科学士　|　现居深圳**  
 电话：1857667****  
 邮箱：wei.chungwei[at]gmail.com  
 博客：<a href="https://github.com/chungwei/me/issues" target="_blank">github.com/chungwei/me/issues</a>  
