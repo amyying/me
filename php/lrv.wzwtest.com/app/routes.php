@@ -14,7 +14,9 @@
 Route::get('/', 'HomeController@index');
 
 Route::get('news/detail', 'NewsController@detail');
-Route::get('test', 'TestController@index');
-
+// Route::get('test', 'TestController@index');
+// Route::any('test/uploads', 'TestController@uploads');
+// Route::resource('test', 'TestController');
+Route::controller('test', 'TestController');
 // Route::get('/home/me', )
 // Route::controller('home', 'HomeController');

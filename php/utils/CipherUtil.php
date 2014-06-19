@@ -30,10 +30,10 @@ class CipherUtil {
      * [encrypt description]
      *
      * 2014-03-31
-     * @param  [type] $ciphertext [description]
+     * @param  [type] $plaintext [description]
      * @return [type]             [description]
      */
-    public static function encrypt_by_discuz($ciphertext) {
+    public static function encrypt_by_discuz($plaintext) {
         return self::authcode($ciphertext, "ENCODE");
     }
 
@@ -41,10 +41,10 @@ class CipherUtil {
      * [decrypt description]
      *
      * 2014-03-31
-     * @param  [type] $plaintext [description]
+     * @param  [type] $ciphertext [description]
      * @return [type]            [description]
      */
-    public static function decrypt_by_discuz($plaintext) {
+    public static function decrypt_by_discuz($ciphertext) {
         return self::authcode($plaintext, "DECODE");
     }
 
